@@ -1,0 +1,58 @@
+{
+  "name": "pv-script",
+  "type": "module",
+  "version": "0.0.0",
+  "description": "a project git/version script",
+  "author": "Lzzzs",
+  "license": "MIT",
+  "keywords": [
+    "script",
+    "git",
+    "version",
+    "project"
+  ],
+  "main": "bin/index.js",
+  "bin": {
+    "pv-script": "./bin/pv-script.js"
+  },
+  "files": [
+    "bin"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "prepare": "husky install",
+    "test": "vitest run",
+    "test:dev": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "commit": "git add . && cz",
+    "commit:changeset": "changeset add && git add . && cz",
+    "lint": "eslint src/**",
+    "lint:fix": "eslint src/** --fix",
+    "changeset:version": "changeset version",
+    "changeset:publish": "changeset publish"
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-git"
+    }
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^2.3.4",
+    "@changesets/cli": "^2.27.1",
+    "@commitlint/config-conventional": "^18.4.3",
+    "chalk": "^5.3.0",
+    "commander": "^11.1.0",
+    "commitizen": "^4.3.0",
+    "commitlint": "^18.4.3",
+    "cz-git": "^1.7.1",
+    "eslint": "^8.55.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
+    "prompts": "^2.4.2",
+    "rollup": "^4.6.1",
+    "vitest": "^1.0.1"
+  },
+  "lint-staged": {
+    "src/**": "eslint --cache --fix"
+  }
+}
