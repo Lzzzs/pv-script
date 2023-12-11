@@ -55,7 +55,7 @@
     "husky": "^8.0.3",
     "lint-staged": "^15.2.0",
     "prompts": "^2.4.2",
-    "rollup": "^4.6.1",
+    "rollup": "^4.8.0",
     "vitest": "^1.0.1"
   },
   "lint-staged": {
