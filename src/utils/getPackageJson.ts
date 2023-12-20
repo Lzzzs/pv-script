@@ -1,1 +1,24 @@
+import { readFile } from 'node:fs/promises'
+import path from 'node:path'
+import { log } from 'node:console'
+import chalk from 'chalk'
+
+/**
+ * 读取 package.json
+ */
+export async function getPackageVersion() {
+  const packageJsonPath = path.join(path.resolve(), 'package.json')
+
+  try {
+    const data = await readFile(packageJsonPath, 'utf8')
+
+    const packageJson = JSON.parse(data)
+
+    return packageJson.version
+  }
+  catch (err: any) {
+    log(chalk.red(`读取 package.json 文件时出错: ${err.message}`))
+  }
+}
+
 export { bin, version, name, description } from '../../package.json'

@@ -3,6 +3,7 @@ import { spawn } from 'node:child_process'
 import prompts from 'prompts'
 import type { PromptObject } from 'prompts'
 import chalk from 'chalk'
+import ora from 'ora'
 import type { IDevelopOptions } from '.'
 import { getCurrentTime } from '@/utils/DateUtil'
 import { replaceVariables, validateTemplate } from '@/utils/OptionUtil'
@@ -50,23 +51,27 @@ export default async function developAction(options: IDevelopOptions) {
 
   switchProcess.on('close', (switchCode) => {
     if (switchCode !== 0) {
-      log(chalk.bgRedBright('切换 master 分支失败'))
+      log(chalk.bgRedBright('切换主分支分支失败'))
       return
     }
 
-    log(chalk.green('🎉 切换 master 分支成功'))
+    log(chalk.green('🎉 切换主分支分支成功'))
     const pullProcess = spawn(pullMasterCommand, {
       stdio: 'inherit',
       shell: true,
     })
 
+    const spinner = ora('拉取主分支代码中...').start()
+
     pullProcess.on('close', (pullCode) => {
       if (pullCode !== 0) {
-        log(chalk.bgRedBright('拉取 master 代码失败'))
+        log(chalk.bgRedBright('拉取主分支代码失败'))
+        spinner.stop()
         return
       }
+      spinner.stop()
 
-      log(chalk.green('🎉 拉取 master 代码成功'))
+      log(chalk.green('🎉 拉取主分支代码成功'))
       spawn(checkoutCommand(branchName), {
         stdio: 'inherit',
         shell: true,

@@ -16,5 +16,5 @@ export interface IGlobalVariables {
   name: string
   version?: string
   time?: string
-  type: string
+  type?: string
 }

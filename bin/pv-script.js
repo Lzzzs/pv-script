@@ -3,6 +3,10 @@ import { log } from 'node:console';
 import { spawn } from 'node:child_process';
 import prompts from 'prompts';
 import chalk from 'chalk';
+import ora from 'ora';
+import { readFile } from 'fs/promises';
+import path from 'path';
+import { log as log$1 } from 'console';
 
 function getCurrentTime() {
     const currentDate = new Date();
@@ -65,20 +69,23 @@ async function developAction(options) {
     });
     switchProcess.on('close', (switchCode) => {
         if (switchCode !== 0) {
-            log(chalk.bgRedBright('切换 master 分支失败'));
+            log(chalk.bgRedBright('切换主分支分支失败'));
             return;
         }
-        log(chalk.green('🎉 切换 master 分支成功'));
+        log(chalk.green('🎉 切换主分支分支成功'));
         const pullProcess = spawn(pullMasterCommand, {
             stdio: 'inherit',
             shell: true,
         });
+        const spinner = ora('拉取主分支代码中...').start();
         pullProcess.on('close', (pullCode) => {
             if (pullCode !== 0) {
-                log(chalk.bgRedBright('拉取 master 代码失败'));
+                log(chalk.bgRedBright('拉取主分支代码失败'));
+                spinner.stop();
                 return;
             }
-            log(chalk.green('🎉 拉取 master 代码成功'));
+            spinner.stop();
+            log(chalk.green('🎉 拉取主分支代码成功'));
             spawn(checkoutCommand(branchName), {
                 stdio: 'inherit',
                 shell: true,
@@ -95,12 +102,149 @@ async function developAction(options) {
 
 const DEFAULT_MAIN_BRANCH = 'master';
 const DEFAULT_RELEASE_BRANCH = 'release/%version%-%name%';
+const DEFAULT_DEVELOP_BRANCH = '%type%/%time%-%name%';
 
 function createDevelopCommand() {
     return {
         name: 'develop',
         description: 'develop',
         action: developAction,
+        options: [
+            {
+                flags: '-t, --template <template>',
+                description: 'set template name',
+                defaultValue: DEFAULT_DEVELOP_BRANCH,
+            },
+            {
+                flags: '-m, --main <branch>',
+                description: 'set main branch name',
+                defaultValue: DEFAULT_MAIN_BRANCH,
+            },
+        ],
+    };
+}
+
+var name = "pv-script";
+var version = "0.0.1";
+var description = "A project git/version script";
+
+/**
+* 读取 package.json
+*/
+async function getPackageVersion() {
+    const packageJsonPath = path.join(path.resolve(), 'package.json');
+    try {
+        const data = await readFile(packageJsonPath, 'utf8');
+        const packageJson = JSON.parse(data);
+        return packageJson.version;
+    }
+    catch (err) {
+        log$1(chalk.red(`读取 package.json 文件时出错: ${err.message}`));
+        return;
+    }
+}
+
+const customQuestion = [
+    {
+        type: 'text',
+        name: "customVersion",
+        message: "请输入自定义版本",
+        validate: (value) => {
+            const pattern = /^\d+(?:\.\d+){2}$/;
+            return pattern.test(value) ? true : "版本规则不正确";
+        }
+    }
+];
+function genQuestionByVersion(version) {
+    const curVersion = version.split(".").map(item => Number(item));
+    const patchVersion = `${curVersion[0]}.${curVersion[1]}.${curVersion[2] + 1}`;
+    const minorVersion = `${curVersion[0]}.${curVersion[1] + 1}.0`;
+    const majorVersion = `${curVersion[0] + 1}.0.0`;
+    return [
+        {
+            type: 'text',
+            name: 'branch',
+            message: '请输入要创建的 release 的分支名',
+            validate: value => value.length > 0 ? true : '分支名称不能为空',
+        },
+        {
+            type: 'select',
+            name: 'newVersion',
+            message: '请选择要发布的版本',
+            choices: [
+                { title: patchVersion, value: patchVersion, description: "patch" },
+                { title: minorVersion, value: minorVersion, description: "minor" },
+                { title: majorVersion, value: majorVersion, description: "major" },
+                { title: "custom", value: "custom", description: "自定义版本" },
+            ],
+            initial: 0
+        }
+    ];
+}
+async function releaseAction(options) {
+    const { template, main } = options;
+    if (!validateTemplate(template)) {
+        log(chalk.bgRedBright('模板名称不合法'));
+        return;
+    }
+    const switchProcess = spawn(switchMasterCommand(main), {
+        stdio: 'inherit',
+        shell: true,
+    });
+    switchProcess.on('close', (switchCode) => {
+        if (switchCode !== 0) {
+            log(chalk.bgRedBright('切换主分支分支失败'));
+            return;
+        }
+        log(chalk.green('🎉 切换主分支分支成功'));
+        const pullProcess = spawn(pullMasterCommand, {
+            stdio: 'inherit',
+            shell: true,
+        });
+        const spinner = ora('拉取主分支代码中...').start();
+        pullProcess.on('close', async (pullCode) => {
+            if (pullCode !== 0) {
+                log(chalk.bgRedBright('拉取主分支代码失败'));
+                spinner.stop();
+                return;
+            }
+            spinner.stop();
+            log(chalk.green('🎉 拉取主分支代码成功'));
+            const packageVersion = await getPackageVersion();
+            if (!packageVersion)
+                return;
+            const { branch: name, newVersion } = await prompts(genQuestionByVersion(packageVersion));
+            // 用户强制退出的情况
+            if (name === undefined || newVersion === undefined)
+                return;
+            let version = newVersion;
+            if (newVersion === "custom") {
+                const { customVersion } = await prompts(customQuestion);
+                if (customVersion === undefined)
+                    return;
+                version = customVersion;
+            }
+            // release 只有两个变量 name、version
+            const branchName = replaceVariables(template, { name, version });
+            spawn(checkoutCommand(branchName), {
+                stdio: 'inherit',
+                shell: true,
+            }).on('close', (checkoutCode) => {
+                if (checkoutCode !== 0) {
+                    log(chalk.bgRedBright('创建分支失败'));
+                    return;
+                }
+                log(chalk.green('🎉 分支切换成功'));
+            });
+        });
+    });
+}
+
+function createReleaseCommand() {
+    return {
+        name: 'release',
+        description: 'release',
+        action: releaseAction,
         options: [
             {
                 flags: '-t, --template <template>',
@@ -118,6 +262,7 @@ function createDevelopCommand() {
 
 var createCommandFunctions = [
     createDevelopCommand,
+    createReleaseCommand
 ];
 
 function registerCommand (program) {
@@ -129,10 +274,6 @@ function registerCommand (program) {
         });
     });
 }
-
-var name = "pv-script";
-var version = "0.0.1";
-var description = "A project git/version script";
 
 const program = new Command();
 program

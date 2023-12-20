@@ -1,22 +1,22 @@
-import developAction from './action'
+import releaseAction from './action'
 import type { ICommandConfig } from '@/types'
-import { DEFAULT_DEVELOP_BRANCH, DEFAULT_MAIN_BRANCH } from '@/global/config'
+import { DEFAULT_MAIN_BRANCH, DEFAULT_RELEASE_BRANCH } from '@/global/config'
 
-export interface IDevelopOptions {
+export interface IReleaseAction {
   template: string
   main: string
 }
 
-export function createDevelopCommand(): ICommandConfig {
+export function createReleaseCommand(): ICommandConfig {
   return {
-    name: 'develop',
-    description: 'develop',
-    action: developAction,
+    name: 'release',
+    description: 'release',
+    action: releaseAction,
     options: [
       {
         flags: '-t, --template <template>',
         description: 'set template name',
-        defaultValue: DEFAULT_DEVELOP_BRANCH,
+        defaultValue: DEFAULT_RELEASE_BRANCH,
       },
       {
         flags: '-m, --main <branch>',
