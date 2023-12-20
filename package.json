@@ -11,7 +11,6 @@
     "version",
     "project"
   ],
-  "main": "bin/index.js",
   "bin": {
     "pv-script": "./bin/pv-script.js"
   },
