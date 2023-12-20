@@ -36,7 +36,7 @@
     "lint": "eslint src/**",
     "lint:fix": "eslint src/** --fix",
     "changeset:version": "changeset version",
-    "changeset:publish": "changeset publish"
+    "changeset:publish": "changeset publish --access public"
   },
   "config": {
     "commitizen": {

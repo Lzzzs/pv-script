@@ -38,7 +38,7 @@ jobs:
         with:
           commit: 'chore(release): update release & CHANGELOG.md'
           title: '📦 Update Packages Version'
-          publish: pnpm changeset:publish --access public
+          publish: pnpm changeset:publish
           version: pnpm changeset:version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
