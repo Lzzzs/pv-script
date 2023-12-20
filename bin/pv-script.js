@@ -1,12 +1,8 @@
 import { Command } from 'commander';
+import { log } from 'node:console';
+import { spawn } from 'node:child_process';
 import prompts from 'prompts';
 import chalk from 'chalk';
-import { log } from 'console';
-import { spawn } from 'child_process';
-
-var name = "pv-script";
-var version = "0.0.0";
-var description = "A project git/version script";
 
 function getCurrentTime() {
     const currentDate = new Date();
@@ -102,48 +98,41 @@ const DEFAULT_RELEASE_BRANCH = 'release/%version%-%name%';
 
 function createDevelopCommand() {
     return {
-        name: "develop",
-        description: "develop",
+        name: 'develop',
+        description: 'develop',
         action: developAction,
         options: [
             {
-                flags: "-t, --template <template>",
-                description: "set template name",
-                defaultValue: DEFAULT_RELEASE_BRANCH
+                flags: '-t, --template <template>',
+                description: 'set template name',
+                defaultValue: DEFAULT_RELEASE_BRANCH,
             },
             {
-                flags: "-m, --main <branch>",
-                description: "set main branch name",
-                defaultValue: DEFAULT_MAIN_BRANCH
-            }
-        ]
+                flags: '-m, --main <branch>',
+                description: 'set main branch name',
+                defaultValue: DEFAULT_MAIN_BRANCH,
+            },
+        ],
     };
 }
 
 var createCommandFunctions = [
-    createDevelopCommand
+    createDevelopCommand,
 ];
 
 function registerCommand (program) {
-    createCommandFunctions.forEach(fn => {
+    createCommandFunctions.forEach((fn) => {
         const { name, description, action, options } = fn();
         const command = program.command(name).description(description).action(action);
         options?.forEach(({ flags, description, defaultValue }) => {
             command.option(flags, description, defaultValue);
         });
     });
-    program.command('test')
-        .description('Split a string into substrings and display as an array')
-        .argument('<string>', 'string to split')
-        .option('--first', 'display just the first substring', () => {
-        console.log(6);
-    })
-        .option('-s, --separator <char>', 'separator character', ',')
-        .action((str, options) => {
-        const limit = options.first ? 1 : undefined;
-        console.log(str.split(options.separator, limit));
-    });
 }
+
+var name = "pv-script";
+var version = "0.0.1";
+var description = "A project git/version script";
 
 const program = new Command();
 program
