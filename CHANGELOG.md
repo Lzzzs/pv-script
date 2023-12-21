@@ -1,5 +1,11 @@
 # pv-script
 
+## 0.0.6
+
+### Patch Changes
+
+- 6e38c52: add dependencies
+
 ## 0.0.5
 
 ### Patch Changes
