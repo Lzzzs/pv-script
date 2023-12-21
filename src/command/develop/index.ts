@@ -10,7 +10,7 @@ export interface IDevelopOptions {
 export function createDevelopCommand(): ICommandConfig {
   return {
     name: 'develop',
-    description: 'switching of develop branches',
+    description: `switching of develop branches. default template: ${DEFAULT_DEVELOP_BRANCH}. default main branch: ${DEFAULT_MAIN_BRANCH}`,
     action: developAction,
     options: [
       {

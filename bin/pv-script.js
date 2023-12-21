@@ -1,15 +1,12 @@
 import { Command } from 'commander';
 import { log } from 'node:console';
-import { spawn } from 'node:child_process';
+import { spawn, execSync } from 'node:child_process';
 import prompts from 'prompts';
 import chalk from 'chalk';
 import ora from 'ora';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { execSync } from 'child_process';
-import { readFile as readFile$1, writeFile } from 'fs';
-import path$1 from 'path';
-import { log as log$1 } from 'console';
+import { readFile as readFile$1, writeFile } from 'node:fs';
 
 function getCurrentTime() {
     const currentDate = new Date();
@@ -262,14 +259,14 @@ function createReleaseCommand() {
     };
 }
 
-const packageJsonPath = path$1.join(path$1.resolve(), 'package.json');
+const packageJsonPath = path.join(path.resolve(), 'package.json');
 function versionAction() {
     try {
         const version = getCurrentBranchVersion();
         version && updatePackageVersion(version);
     }
     catch (error) {
-        log$1(chalk.red(`版本更新失败: ${error.message}`));
+        log(chalk.red(`版本更新失败: ${error.message}`));
     }
 }
 function getCurrentBranchVersion() {
@@ -280,7 +277,7 @@ function getCurrentBranchVersion() {
             return version[0];
         }
         else {
-            log$1(chalk.bgRedBright("分支名不符合规范，无法推断版本"));
+            log(chalk.bgRedBright('分支名不符合规范，无法推断版本'));
             return null;
         }
     }
@@ -300,12 +297,10 @@ function updatePackageVersion(version) {
             packageJson.version = version;
             // 将修改后的内容写回package.json
             writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2), 'utf8', (err) => {
-                if (err) {
+                if (err)
                     console.error('Error writing package.json:', err);
-                    return;
-                }
             });
-            log$1(chalk.greenBright('🎉 版本更新成功'));
+            log(chalk.greenBright('🎉 版本更新成功'));
         }
         catch (jsonError) {
             console.error('Error parsing package.json:', jsonError);
@@ -325,7 +320,7 @@ function createVersionCommand() {
 var createCommandFunctions = [
     createDevelopCommand,
     createReleaseCommand,
-    createVersionCommand
+    createVersionCommand,
 ];
 
 function registerCommand (program) {

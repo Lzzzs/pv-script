@@ -10,7 +10,7 @@ export interface IReleaseAction {
 export function createReleaseCommand(): ICommandConfig {
   return {
     name: 'release',
-    description: 'switching of release branches',
+    description: `switching of release branches. default template: ${DEFAULT_RELEASE_BRANCH}. default main branch: ${DEFAULT_MAIN_BRANCH}`,
     action: releaseAction,
     options: [
       {
