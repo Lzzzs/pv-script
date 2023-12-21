@@ -1,5 +1,11 @@
 # pv-script
 
+## 0.0.5
+
+### Patch Changes
+
+- 2653bb3: update bin field file
+
 ## 0.0.4
 
 ### Patch Changes
