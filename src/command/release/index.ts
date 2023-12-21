@@ -10,7 +10,7 @@ export interface IReleaseAction {
 export function createReleaseCommand(): ICommandConfig {
   return {
     name: 'release',
-    description: 'release',
+    description: 'switching of release branches',
     action: releaseAction,
     options: [
       {
