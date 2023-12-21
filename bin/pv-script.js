@@ -4,8 +4,11 @@ import { spawn } from 'node:child_process';
 import prompts from 'prompts';
 import chalk from 'chalk';
 import ora from 'ora';
-import { readFile } from 'fs/promises';
-import path from 'path';
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
+import { execSync } from 'child_process';
+import { readFile as readFile$1, writeFile } from 'fs';
+import path$1 from 'path';
 import { log as log$1 } from 'console';
 
 function getCurrentTime() {
@@ -107,7 +110,7 @@ const DEFAULT_DEVELOP_BRANCH = '%type%/%time%-%name%';
 function createDevelopCommand() {
     return {
         name: 'develop',
-        description: 'develop',
+        description: 'switching of develop branches',
         action: developAction,
         options: [
             {
@@ -125,12 +128,12 @@ function createDevelopCommand() {
 }
 
 var name = "pv-script";
-var version = "0.0.1";
+var version = "0.0.2";
 var description = "A project git/version script";
 
 /**
-* 读取 package.json
-*/
+ * 读取 package.json
+ */
 async function getPackageVersion() {
     const packageJsonPath = path.join(path.resolve(), 'package.json');
     try {
@@ -139,24 +142,23 @@ async function getPackageVersion() {
         return packageJson.version;
     }
     catch (err) {
-        log$1(chalk.red(`读取 package.json 文件时出错: ${err.message}`));
-        return;
+        log(chalk.red(`读取 package.json 文件时出错: ${err.message}`));
     }
 }
 
 const customQuestion = [
     {
         type: 'text',
-        name: "customVersion",
-        message: "请输入自定义版本",
+        name: 'customVersion',
+        message: '请输入自定义版本',
         validate: (value) => {
             const pattern = /^\d+(?:\.\d+){2}$/;
-            return pattern.test(value) ? true : "版本规则不正确";
-        }
-    }
+            return pattern.test(value) ? true : '版本规则不正确';
+        },
+    },
 ];
 function genQuestionByVersion(version) {
-    const curVersion = version.split(".").map(item => Number(item));
+    const curVersion = version.split('.').map(item => Number(item));
     const patchVersion = `${curVersion[0]}.${curVersion[1]}.${curVersion[2] + 1}`;
     const minorVersion = `${curVersion[0]}.${curVersion[1] + 1}.0`;
     const majorVersion = `${curVersion[0] + 1}.0.0`;
@@ -172,13 +174,13 @@ function genQuestionByVersion(version) {
             name: 'newVersion',
             message: '请选择要发布的版本',
             choices: [
-                { title: patchVersion, value: patchVersion, description: "patch" },
-                { title: minorVersion, value: minorVersion, description: "minor" },
-                { title: majorVersion, value: majorVersion, description: "major" },
-                { title: "custom", value: "custom", description: "自定义版本" },
+                { title: patchVersion, value: patchVersion, description: 'patch' },
+                { title: minorVersion, value: minorVersion, description: 'minor' },
+                { title: majorVersion, value: majorVersion, description: 'major' },
+                { title: 'custom', value: 'custom', description: '自定义版本' },
             ],
-            initial: 0
-        }
+            initial: 0,
+        },
     ];
 }
 async function releaseAction(options) {
@@ -218,7 +220,7 @@ async function releaseAction(options) {
             if (name === undefined || newVersion === undefined)
                 return;
             let version = newVersion;
-            if (newVersion === "custom") {
+            if (newVersion === 'custom') {
                 const { customVersion } = await prompts(customQuestion);
                 if (customVersion === undefined)
                     return;
@@ -243,7 +245,7 @@ async function releaseAction(options) {
 function createReleaseCommand() {
     return {
         name: 'release',
-        description: 'release',
+        description: 'switching of release branches',
         action: releaseAction,
         options: [
             {
@@ -260,9 +262,70 @@ function createReleaseCommand() {
     };
 }
 
+const packageJsonPath = path$1.join(path$1.resolve(), 'package.json');
+function versionAction() {
+    try {
+        const version = getCurrentBranchVersion();
+        version && updatePackageVersion(version);
+    }
+    catch (error) {
+        log$1(chalk.red(`版本更新失败: ${error.message}`));
+    }
+}
+function getCurrentBranchVersion() {
+    try {
+        const branchName = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+        const version = branchName.match(/(\d+\.\d+\.\d+)/);
+        if (version && version.length > 0) {
+            return version[0];
+        }
+        else {
+            log$1(chalk.bgRedBright("分支名不符合规范，无法推断版本"));
+            return null;
+        }
+    }
+    catch (error) {
+        console.error('Error getting Git branch:', error.message);
+        return null;
+    }
+}
+function updatePackageVersion(version) {
+    readFile$1(packageJsonPath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading package.json:', err);
+            return;
+        }
+        try {
+            const packageJson = JSON.parse(data);
+            packageJson.version = version;
+            // 将修改后的内容写回package.json
+            writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2), 'utf8', (err) => {
+                if (err) {
+                    console.error('Error writing package.json:', err);
+                    return;
+                }
+            });
+            log$1(chalk.greenBright('🎉 版本更新成功'));
+        }
+        catch (jsonError) {
+            console.error('Error parsing package.json:', jsonError);
+            throw jsonError;
+        }
+    });
+}
+
+function createVersionCommand() {
+    return {
+        name: 'version',
+        description: 'update package version',
+        action: versionAction,
+    };
+}
+
 var createCommandFunctions = [
     createDevelopCommand,
-    createReleaseCommand
+    createReleaseCommand,
+    createVersionCommand
 ];
 
 function registerCommand (program) {
