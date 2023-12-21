@@ -107,7 +107,7 @@ const DEFAULT_DEVELOP_BRANCH = '%type%/%time%-%name%';
 function createDevelopCommand() {
     return {
         name: 'develop',
-        description: 'switching of develop branches',
+        description: `switching of develop branches. default template: ${DEFAULT_DEVELOP_BRANCH}. default main branch: ${DEFAULT_MAIN_BRANCH}`,
         action: developAction,
         options: [
             {
@@ -125,7 +125,7 @@ function createDevelopCommand() {
 }
 
 var name = "pv-script";
-var version = "0.0.2";
+var version = "0.0.3";
 var description = "A project git/version script";
 
 /**
@@ -242,7 +242,7 @@ async function releaseAction(options) {
 function createReleaseCommand() {
     return {
         name: 'release',
-        description: 'switching of release branches',
+        description: `switching of release branches. default template: ${DEFAULT_RELEASE_BRANCH}. default main branch: ${DEFAULT_MAIN_BRANCH}`,
         action: releaseAction,
         options: [
             {

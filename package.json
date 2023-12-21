@@ -12,7 +12,7 @@
     "project"
   ],
   "bin": {
-    "pv-script": "./bin/pv-script.js"
+    "pv-script": "./bin/index.js"
   },
   "files": [
     "bin"
