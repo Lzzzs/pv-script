@@ -14,3 +14,16 @@ describe('getCurrentTime', () => {
     expect(result).toBe(expectedDateString);
   });
 });
+
+describe('padZero', () => {
+  it('input 8 should return 08', () => {
+    const result = padZero(8)
+    expect(result).toBe("08");
+  });
+
+  it('input 11 should return 11', () => {
+    const result = padZero(11)
+    expect(result).toEqual("11");
+  });
+});
+
