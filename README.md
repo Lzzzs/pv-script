@@ -35,9 +35,9 @@ pv-script 目前有三个 command，分别是 **develop、release、version**。
 默认生成的开发分支的模板是 `%type%/%time%-%name%`，这个模板最后生成的分支名为 `命令行中选择的开发分支类型/当前时间-命令行中输入的分支名`。那也就是说我们可以自由组合分支名的模板，通过 -t 即可指定。例如`%time%/%type%/%name%`，最后生成的分支名为`当前时间/命令行中选择的开发分支类型/命令行中输入的分支名`
 
 > develop 目前只支持三个模板变量
-> %time% 当前时间: 年-月-日
-> %type% 开发分支类型：feature/hotfix
-> %name% 输入的分支名
+- **%time%** 当前时间: 年-月-日
+- **%type%** 开发分支类型：feature/hotfix
+- **%name%** 输入的分支名
 
 ### release
 
@@ -51,8 +51,8 @@ pv-script 目前有三个 command，分别是 **develop、release、version**。
 默认生成的发布分支的模板是 `release/%version%-%name%`，这个模板最后生成的分支名为 `release/命令行中选择的版本-命令行中输入的分支名`。那也就是说我们可以自由组合分支名的模板，通过 -t 即可指定。例如`%version%/%name%`，最后生成的分支名为`命令行中选择的版本/命令行中输入的分支名`
 
 > release 目前只支持二个模板变量
-> %version% 命令行中选择的版本，可以选择 patch、minor、major 三个版本级别的更新，也可以自定义版本
-> %name% 输入的分支名
+- **%version%** 命令行中选择的版本，可以选择 patch、minor、major 三个版本级别的更新，也可以自定义版本
+- **%name%** 输入的分支名
 
 ### version
 执行 version 会进行以下操作
