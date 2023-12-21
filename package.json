@@ -1,7 +1,7 @@
 {
   "name": "pv-script",
   "type": "module",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A project git/version script",
   "author": "Lzzzs",
   "license": "MIT",

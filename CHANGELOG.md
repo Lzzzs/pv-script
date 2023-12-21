@@ -1,5 +1,11 @@
 # pv-script
 
+## 0.0.7
+
+### Patch Changes
+
+- 0a4f757: fix bin/index.js
+
 ## 0.0.6
 
 ### Patch Changes
