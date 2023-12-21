@@ -17,5 +17,4 @@ export default {
     file: 'bin/pv-script.js',
     format: 'esm',
   },
-  external: ['commander']
 }
