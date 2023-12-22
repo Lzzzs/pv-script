@@ -1,7 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
-import { log } from 'node:console'
-import chalk from 'chalk'
+import { errorLog } from './LogUtil'
 
 /**
  * 读取 package.json
@@ -17,7 +16,7 @@ export async function getPackageVersion() {
     return packageJson.version
   }
   catch (err: any) {
-    log(chalk.red(`读取 package.json 文件时出错: ${err.message}`))
+    errorLog(`读取 package.json 文件时出错: ${err.message}`)
   }
 }
 

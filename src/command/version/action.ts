@@ -1,8 +1,7 @@
 import { execSync } from 'node:child_process'
 import { readFile, writeFile } from 'node:fs'
 import path from 'node:path'
-import { log } from 'node:console'
-import chalk from 'chalk'
+import { errorLog, successLog } from '@/utils/LogUtil'
 
 const packageJsonPath = path.join(path.resolve(), 'package.json')
 
@@ -12,7 +11,7 @@ export default function versionAction() {
     version && updatePackageVersion(version)
   }
   catch (error: any) {
-    log(chalk.red(`版本更新失败: ${error.message}`))
+    errorLog(`版本更新失败: ${error.message}`)
   }
 }
 
@@ -25,12 +24,12 @@ function getCurrentBranchVersion() {
       return version[0]
     }
     else {
-      log(chalk.bgRedBright('分支名不符合规范，无法推断版本'))
+      errorLog('分支名不符合规范，无法推断版本')
       return null
     }
   }
   catch (error: any) {
-    console.error('Error getting Git branch:', error.message)
+    errorLog('无法获取 git 分支信息')
     return null
   }
 }
@@ -38,7 +37,7 @@ function getCurrentBranchVersion() {
 function updatePackageVersion(version: string) {
   readFile(packageJsonPath, 'utf8', (err, data) => {
     if (err) {
-      console.error('Error reading package.json:', err)
+      errorLog('读取 package.json 错误')
       return
     }
 
@@ -50,12 +49,12 @@ function updatePackageVersion(version: string) {
       // 将修改后的内容写回package.json
       writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2), 'utf8', (err) => {
         if (err)
-          console.error('Error writing package.json:', err)
+          errorLog('写入 package.json 错误')
       })
-      log(chalk.greenBright('🎉 版本更新成功'))
+      successLog('🎉 版本更新成功')
     }
     catch (jsonError) {
-      console.error('Error parsing package.json:', jsonError)
+      errorLog('解析 package.json 错误')
       throw jsonError
     }
   })
